@@ -5,6 +5,7 @@
 #     Install the required library: Download the Adafruit CircuitPython library bundle and copy the adafruit_hid folder into a new folder named lib on the CIRCUITPY drive .
 
 #     Create the code file: Create a new text file named code.py on the CIRCUITPY drive and paste the following code into it.
+##############
 
 import time
 import board
