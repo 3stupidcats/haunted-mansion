@@ -1,40 +1,39 @@
 #include <Keyboard.h>
 
 const int buttonPin = 2;
-bool buttonWasPressed = false;
+bool lastButtonState = HIGH;
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
   Keyboard.begin();
-  delay(1000);  // Let the host recognize the board
+  delay(1000);
 }
 
 void loop() {
-  bool buttonPressed = (digitalRead(buttonPin) == LOW);
-
-  if (buttonPressed && !buttonWasPressed) {
+  bool buttonState = digitalRead(buttonPin);
+  
+  // Only act on button press (falling edge)
+  if (buttonState == LOW && lastButtonState == HIGH) {
     delay(50);  // Debounce
+    
     if (digitalRead(buttonPin) == LOW) {
-      endMeeting();
+      // Send Alt+Q as a proper keyboard shortcut
+      Keyboard.press(KEY_LEFT_ALT);  // Hold Alt
+      Keyboard.press('q');            // Press Q while Alt is held
+      
+      delay(300);  // CRITICAL: Hold both keys down for 300ms
+      
+      Keyboard.releaseAll();  // Release both together
+      
+      delay(500);  // Wait for Zoom's End Meeting dialog
+      
+      // Confirm the dialog
+      Keyboard.press(KEY_RETURN);
+      delay(100);
+      Keyboard.releaseAll();
     }
   }
-
-  buttonWasPressed = buttonPressed;
-  delay(10);
-}
-
-void endMeeting() {
-  // Alt + Q to trigger End Meeting
-  Keyboard.press(KEY_LEFT_ALT);
-  delay(50);              // Let Alt register before Q
-  Keyboard.press('q');
-  delay(100);             // Hold combo long enough to register
-  Keyboard.releaseAll();
-  delay(500);             // Wait for Zoom's "End Meeting" dialog
-
-  // Confirm the dialog with Return
-  Keyboard.press(KEY_RETURN);
-  delay(100);
-  Keyboard.releaseAll();
-  delay(200);             // Cool-down
+  
+  lastButtonState = buttonState;
+  delay(50);
 }
